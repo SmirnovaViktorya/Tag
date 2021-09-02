@@ -1,36 +1,5 @@
 const tagList = document.querySelector(".tagList");
 const inp = document.querySelector(".inp");
-
-inp.addEventListener("keypress", (event) => {
-    if (event.key === "," && inp.value != "") {
-        createTag();
-        event.preventDefault();
-        clearList();
-    }
-});
-
-function createTag() {
-    let tag = document.createElement("div");
-    tag.classList.add("tag");
-    let text = document.createElement("div");
-    text.innerHTML = inp.value;
-    tag.append(text);
-    let del = document.createElement("div");
-    del.classList.add("delete");
-    tag.append(del);
-    tagList.append(tag);
-    inp.value = "";
-}
-
-tagList.addEventListener("click", deleteTag);
-
-function deleteTag(event) {
-    if (event.target.classList.value === "delete") {
-        let tag = event.target.parentElement;
-        tagList.removeChild(tag);
-    }
-}
-
 var countries = [
     "Afghanistan",
     "Albania",
@@ -255,7 +224,15 @@ var countries = [
     "Zambia",
     "Zimbabwe",
 ];
+tagList.addEventListener("click", deleteTag);
 
+inp.addEventListener("keypress", (event) => {
+    if (event.key === "," && inp.value != "") {
+        createTag();
+        event.preventDefault();
+        clearList();
+    }
+});
 
 inp.addEventListener("input", function () {
     clearList();
@@ -264,6 +241,29 @@ inp.addEventListener("input", function () {
         createList(res);
     }
 });
+
+function createTag() {
+    let tag = document.createElement("div");
+    tag.classList.add("tag");
+    let text = document.createElement("div");
+    text.innerHTML = inp.value;
+    tag.append(text);
+    let del = document.createElement("div");
+    del.classList.add("delete");
+    del.innerHTML = '&#x2716';
+    tag.append(del);
+    tagList.append(tag);
+    inp.value = "";
+}
+
+
+function deleteTag(event) {
+    if (event.target.classList.value === "delete") {
+        let tag = event.target.parentElement;
+        tagList.removeChild(tag);
+    }
+}
+
 
 function findMatch(str, arr) {
     return arr.filter(
@@ -284,32 +284,44 @@ function createList(arr) {
         }
 
         var n = -1;
+        const ARROW_DOWN = 40;
+        const ARROW_UP = 38;
+        const ENTER = 13;
         inp.addEventListener("keydown", function (event) {
             let listItem = Array.from(document.querySelectorAll(".item"));
-            if (event.keyCode === 40) {
+            if (event.keyCode === ARROW_DOWN) {
                 n++;
                 if (n >= listItem.length) {
                     n = 0;
                 }
-                listItem.forEach((el) => el.classList.remove("selected"));
-                listItem[n].classList.add("selected");
+                changeSelectedElement(listItem, n)
             }
-            if (event.keyCode === 38) {
+            if (event.keyCode === ARROW_UP) {
                 n--;
                 if (n < 0) {
                     n = listItem.length - 1;
                 }
-                listItem.forEach((el) => el.classList.remove("selected"));
-                listItem[n].classList.add("selected");
+                changeSelectedElement(listItem, n)
             }
-            if (event.keyCode === 13) {
-                inp.value = listItem[n].innerHTML;
+            if (event.keyCode === ENTER) {
+                if (listItem[n]) {
+                    inp.value = listItem[n].innerHTML;
+                }
                 clearList();
                 inp.focus();
                 n = -1;
             }
         });
     }
+}
+
+function changeSelectedElement(list, n) {
+    let sel = document.querySelector('.selected');
+    if (sel) {
+        document.querySelector('.selected').classList.remove("selected")
+    }
+    if (list[n])
+        list[n].classList.add("selected");
 }
 
 function clearList() {
