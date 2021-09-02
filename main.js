@@ -1,6 +1,6 @@
 const tagList = document.querySelector(".tagList");
-const inp = document.querySelector(".inp");
-var countries = [
+const inputElement = document.querySelector(".tag-input");
+const countries = [
     "Afghanistan",
     "Albania",
     "Algeria",
@@ -224,36 +224,50 @@ var countries = [
     "Zambia",
     "Zimbabwe",
 ];
+const ARROW_DOWN = 40;
+const ARROW_UP = 38;
+const ENTER = 13;
+const BACKSPACE = 8;
+
 tagList.addEventListener("click", deleteTag);
 
-inp.addEventListener("keypress", (event) => {
-    if (event.key === "," && inp.value != "") {
+inputElement.addEventListener("keydown", (event) => {
+    if (event.key === ',' && inputElement.value != "") {
         createTag();
         event.preventDefault();
         clearList();
     }
+    if (event.keyCode === BACKSPACE && inputElement.value === "") {
+        let tags = document.querySelectorAll('.tag');
+        if (tags.length) {
+            tagList.removeChild(tags[tags.length - 1]);
+        }
+    }
 });
 
-inp.addEventListener("input", function () {
+inputElement.addEventListener("input", function () {
     clearList();
-    if (inp.value) {
-        let res = findMatch(inp.value, countries);
+    if (inputElement.value) {
+        let res = findMatch(inputElement.value, countries);
         createList(res);
     }
 });
 
 function createTag() {
-    let tag = document.createElement("div");
-    tag.classList.add("tag");
-    let text = document.createElement("div");
-    text.innerHTML = inp.value;
-    tag.append(text);
-    let del = document.createElement("div");
-    del.classList.add("delete");
-    del.innerHTML = '&#x2716';
-    tag.append(del);
+    let tag = document.createElement('div');
+    let deleteButton = document.createElement('span');
+
+    tag.className = 'tag';
+    tag.innerText = inputElement.value;
+
+    deleteButton.className = 'delete';
+    deleteButton.innerHTML = '&times;';
+    deleteButton.setAttribute('role', 'button');
+    tag.append(deleteButton);
     tagList.append(tag);
-    inp.value = "";
+
+    inputElement.value = "";
+
 }
 
 
@@ -274,42 +288,47 @@ function findMatch(str, arr) {
 function createList(arr) {
     if (arr.length) {
         let list = document.createElement("ul");
-        list.classList.add("itemList");
+        list.className = 'itemList';
         document.body.append(list);
-        for (let i = 0; i < arr.length; i++) {
-            let li = document.createElement("li");
-            li.classList.add("item");
-            li.innerHTML = arr[i];
-            list.append(li);
-        }
 
-        var n = -1;
-        const ARROW_DOWN = 40;
-        const ARROW_UP = 38;
-        const ENTER = 13;
-        inp.addEventListener("keydown", function (event) {
-            let listItem = Array.from(document.querySelectorAll(".item"));
-            if (event.keyCode === ARROW_DOWN) {
-                n++;
-                if (n >= listItem.length) {
-                    n = 0;
-                }
-                changeSelectedElement(listItem, n)
-            }
-            if (event.keyCode === ARROW_UP) {
-                n--;
-                if (n < 0) {
-                    n = listItem.length - 1;
-                }
-                changeSelectedElement(listItem, n)
-            }
-            if (event.keyCode === ENTER) {
-                if (listItem[n]) {
-                    inp.value = listItem[n].innerHTML;
-                }
-                clearList();
-                inp.focus();
-                n = -1;
+        let fragment = document.createDocumentFragment();
+        arr.forEach(function (el) {
+            let li = document.createElement('li');
+            li.className = 'item';
+            li.textContent = el;
+            fragment.append(li)
+        })
+
+        list.append(fragment)
+
+        let n = -1;
+        inputElement.addEventListener("keydown", function (event) {
+            let listItem = document.querySelectorAll(".item");
+            switch (event.keyCode) {
+                case ARROW_DOWN:
+                    n++;
+                    if (n >= listItem.length) {
+                        n = 0;
+                    };
+                    changeSelectedElement(listItem, n);
+                    break;
+                case ARROW_UP:
+                    n--;
+                    if (n < 0) {
+                        n = listItem.length - 1;
+                    };
+                    changeSelectedElement(listItem, n);
+                    break;
+                case ENTER:
+                    if (listItem[n]) {
+                        inputElement.value = listItem[n].innerHTML;
+                    };
+                    clearList();
+                    inputElement.focus();
+                    n = -1;
+                    break;
+                default:
+                    break;
             }
         });
     }

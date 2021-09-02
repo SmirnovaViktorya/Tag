@@ -50,14 +50,14 @@ body {
   position: absolute;
   right: 3px;
   top: 0;
-  font-size: 10px;
+  font-size: 15px;
 }
 
 .tag:hover .delete {
   display: block;
 }
 
-.inp {
+.tag-input {
   min-width: 50px;
   flex: 1;
   height: 35px;
